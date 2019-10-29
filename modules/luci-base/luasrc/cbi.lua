@@ -1199,19 +1199,20 @@ function TypedSection.parse(self, novld)
 			if name then
 				-- Ignore if it already exists
 				if self:cfgvalue(name) then
-					name = nil;
-				end
-
-				name = self:checkscope(name)
-
-				if not name then
+					name = nil
 					self.err_invalid = true
-				end
+				else
+					name = self:checkscope(name)
 
-				if name and #name > 0 then
-					created = self:create(name, origin) and name
-					if not created then
-						self.invalid_cts = true
+					if not name then
+						self.err_invalid = true
+					end
+
+					if name and #name > 0 then
+						created = self:create(name, origin) and name
+						if not created then
+							self.invalid_cts = true
+						end
 					end
 				end
 			end
@@ -1344,6 +1345,18 @@ function AbstractValue.deplist2json(self, section, deplist)
 	end
 
 	return util.serialize_json(deps)
+end
+
+-- Serialize choices
+function AbstractValue.choices(self)
+	if type(self.keylist) == "table" and #self.keylist > 0 then
+		local i, k, v = nil, nil, {}
+		for i, k in ipairs(self.keylist) do
+			v[k] = self.vallist[i] or k
+		end
+		return v
+	end
+	return nil
 end
 
 -- Generates the unique CBID
